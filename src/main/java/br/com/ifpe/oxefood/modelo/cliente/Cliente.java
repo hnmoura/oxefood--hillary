@@ -21,6 +21,9 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Cliente extends EntidadeAuditavel  {
   
+@OneToOne
+@JoinColumn(nullabe = false)
+private Usuario usuario;
    @Column
    private String nome;
 
