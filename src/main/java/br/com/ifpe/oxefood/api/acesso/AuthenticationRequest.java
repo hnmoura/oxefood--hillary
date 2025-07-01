@@ -1,5 +1,6 @@
 package br.com.ifpe.oxefood.api.acesso;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
