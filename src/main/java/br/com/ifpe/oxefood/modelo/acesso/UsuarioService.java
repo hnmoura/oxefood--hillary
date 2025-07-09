@@ -1,4 +1,6 @@
-mport org.springframework.beans.factory.annotation.Autowired;
+package br.com.ifpe.oxefood.modelo.acesso;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,7 +12,7 @@ import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 
 @Service
-public class UsuarioService implements UserDetailsService {
+public class UsuarioService implements UserDetailsService { //Implementa interface do spring security
 
     @Autowired
     private UsuarioRepository repository;
