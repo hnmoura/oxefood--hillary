@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import br.com.ifpe.oxefood.modelo.acesso.Perfil;
 import br.com.ifpe.oxefood.modelo.acesso.PerfilRepository;
 import br.com.ifpe.oxefood.modelo.acesso.UsuarioService;
+import br.com.ifpe.oxefood.modelo.mensagens.EmailService;
 import jakarta.transaction.Transactional;
 
 @Service // Faz a classe ser um serviço
@@ -28,6 +29,9 @@ public class ClienteService {
     @Autowired
     private PerfilRepository perfilUsuarioRepository;
 
+    @Autowired
+    private EmailService emailService;
+
     @Transactional // Se um falhar as outras seram desfeitas e não seram gravadas no banco
     public Cliente save(Cliente cliente) { // Recebe o objeto cliente que ele vai salvar no banco
 
@@ -40,6 +44,9 @@ public class ClienteService {
 
         cliente.setHabilitado(Boolean.TRUE);
         return repository.save(cliente);
+        emailService.enviarEmailConfirmacaoCadastroCliente(clienteSalvo);
+
+        return clienteSalvo;
 
         // Ou voce pode fazer
         // Cliente c = repository.save(cliente);
@@ -130,6 +137,7 @@ public class ClienteService {
         Cliente cliente = this.obterPorID(endereco.getCliente().getId());
         cliente.getEnderecos().remove(endereco);
         repository.save(cliente);
+
     }
 
 }
