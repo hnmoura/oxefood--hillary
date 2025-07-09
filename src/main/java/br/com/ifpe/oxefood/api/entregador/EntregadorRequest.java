@@ -28,9 +28,8 @@ public class EntregadorRequest {
     @Size(max = 100, message = "O nome deve ter no máximo 100 caracteres.")
     private String nome;
 
-    @NotBlank(message = "O CPF é obrigatório.")
-    @Pattern(regexp = "\\d{3}\\.?\\d{3}\\.?\\d{3}-?\\d{2}", message = "O CPF deve estar no formato 000.000.000-00 ou 00000000000.")
-    private String cpf;
+   @Column
+   private String cpf;
 
     @NotBlank(message = "O RG é obrigatório.")
     @Size(max = 20, message = "O RG deve ter no máximo 20 caracteres.")
@@ -42,12 +41,11 @@ public class EntregadorRequest {
     @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate dataNascimento;
 
-    @NotBlank(message = "O telefone celular é obrigatório.")
-    @Pattern(regexp = "^81\\d{9}$", message = "O telefone celular deve começar com '81' e ter 11 dígitos (ex: 81987654321).")
-    private String foneCelular;
+   @Column
+   private String foneCelular;
 
-    @Pattern(regexp = "^\\d{10,11}$|^$", message = "O telefone fixo deve ter 10 ou 11 dígitos numéricos ou ser vazio.") // Permite vazio ou com dígitos
-    private String foneFixo;
+   @Column
+   private String foneFixo;
 
     @NotNull(message = "A quantidade de entregas realizadas é obrigatória.")
     @Min(value = 0, message = "A quantidade de entregas realizadas não pode ser negativa.")
@@ -76,9 +74,8 @@ public class EntregadorRequest {
     @Size(max = 100, message = "A cidade do endereço deve ter no máximo 100 caracteres.")
     private String enderecoCidade;
 
-    @NotBlank(message = "O CEP do endereço é obrigatório.")
-    @Pattern(regexp = "\\d{8}", message = "O CEP deve conter 8 dígitos numéricos.")
-    private String enderecoCep;
+   @Column
+   private String enderecoCep;
 
     @NotBlank(message = "A UF do endereço é obrigatória.")
     @Size(min = 2, max = 2, message = "A UF do endereço deve ter 2 caracteres.")

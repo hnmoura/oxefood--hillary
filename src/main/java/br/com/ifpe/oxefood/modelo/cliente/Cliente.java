@@ -38,21 +38,10 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Cliente extends EntidadeAuditavel {
-
-    @OneToMany(mappedBy = "cliente", orphanRemoval = true, fetch = FetchType.EAGER)
-    @Fetch(FetchMode.SUBSELECT)
-    private List<EnderecoCliente> enderecos;
-
-    @OneToOne
-    @JoinColumn(nullable = false)
-    private Usuario usuario;
-
-    @Column(nullable = false, length = 100)
-    @NotNull(message = "O Nome é de preenchimento obrigatório")
-    @NotEmpty(message = "O Nome é de preenchimento obrigatório")
-    @Length(max = 100, message = "O Nome deverá ter no máximo {max} caracteres")
-    private String nome;
+public class Cliente extends EntidadeAuditavel  {
+  
+   @Column
+   private String nome;
 
     @Column(nullable = false) // O campo dataNascimento não poderá ser nulo no DB
     @NotNull(message = "A data de nascimento é obrigatória.")

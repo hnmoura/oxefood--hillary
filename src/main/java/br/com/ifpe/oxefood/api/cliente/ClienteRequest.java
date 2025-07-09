@@ -5,13 +5,12 @@ import java.util.Arrays;
 
 import org.hibernate.validator.constraints.br.CPF;
 
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.br.CPF;
+import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import br.com.ifpe.oxefood.modelo.acesso.Perfil;
-import br.com.ifpe.oxefood.modelo.acesso.Usuario;
 import br.com.ifpe.oxefood.modelo.cliente.Cliente;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,37 +29,26 @@ public class ClienteRequest {
     @NotBlank(message = "A senha é de preenchimento obrigatório")
     private String password;
 
-    private String nome;
+   private String nome;
 
-    @JsonFormat(pattern = "dd/MM/yyyy") // Ele vai esperar a anotação em Dia/Mês/Ano
-    private LocalDate dataNascimento;
+@JsonFormat(pattern = "dd/MM/yyyy")
+   private LocalDate dataNascimento;
 
-    @NotBlank(message = "O CPF é de preenchimento obrigatório")
-    @CPF
-    private String cpf;
+   private String cpf;
 
-    private String foneCelular;
+   private String foneCelular;
 
-    private String foneFixo;
+   private String foneFixo;
 
-    public Usuario buildUsuario() {
-        return Usuario.builder()
-                .username(email)
-                .password(password)
-                .roles(Arrays.asList(new Perfil(Perfil.ROLE_CLIENTE)))
-                .build();
-    }
+   public Cliente build() {
 
-    public Cliente build() {
-
-        return Cliente.builder()
-                .usuario(buildUsuario())
-                .nome(nome)
-                .dataNascimento(dataNascimento)
-                .cpf(cpf)
-                .foneCelular(foneCelular)
-                .foneFixo(foneFixo)
-                .build();
-    }
+       return Cliente.builder()
+           .nome(nome)
+           .dataNascimento(dataNascimento)
+           .cpf(cpf)
+           .foneCelular(foneCelular)
+           .foneFixo(foneFixo)
+           .build();
+   }
 
 }
