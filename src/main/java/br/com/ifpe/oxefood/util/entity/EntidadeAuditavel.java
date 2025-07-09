@@ -1,5 +1,4 @@
 package br.com.ifpe.oxefood.util.entity;
-
 import java.time.LocalDate;
 
 import org.springframework.data.annotation.CreatedDate;
@@ -14,6 +13,7 @@ import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Version;
 import lombok.Getter;
 import lombok.Setter;
+
 
 @SuppressWarnings("serial")
 @Getter

@@ -19,13 +19,13 @@ import lombok.Setter;
 @EqualsAndHashCode(of = { "id" })
 @MappedSuperclass
 public abstract class EntidadeNegocio implements Serializable {
-  
+
    @Id
    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-   private Long id;
+    private Long id;
 
    @JsonIgnore
    @Column
-   private Boolean habilitado;
-  
+    private Boolean habilitado;
+    
 }
