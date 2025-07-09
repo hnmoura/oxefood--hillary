@@ -1,7 +1,7 @@
 package br.com.ifpe.oxefood.api.cliente;
 
 import java.util.List;
-import java.util.Optional; 
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,16 +19,27 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.ifpe.oxefood.modelo.cliente.Cliente;
 import br.com.ifpe.oxefood.modelo.cliente.ClienteService;
 import br.com.ifpe.oxefood.modelo.cliente.EnderecoCliente;
-import br.com.ifpe.oxefood.modelo.cliente.EnderecoClienteRepository; 
+import br.com.ifpe.oxefood.modelo.cliente.EnderecoClienteRepository;
 import jakarta.validation.Valid;
 
 @RestController //Faz a classe ser um controller
 @RequestMapping("/api/cliente")
 @CrossOrigin //Utilizada para o controller receber requisições do React
+@Tag(
+    name = "API Cliente",
+    description = "API responsável pelos servidos de cliente no sistema"
+)
+
 public class ClienteController {
 
     @Autowired //Instanciar no cliente service
     private ClienteService clienteService;
+
+    @Operation(
+       summary = "Serviço responsável por salvar um cliente no sistema.",
+       description = "Exemplo de descrição de um endpoint responsável por inserir um cliente no sistema."
+   )
+
 
     @Autowired // Adicione a injeção do EnderecoClienteRepository
     private EnderecoClienteRepository enderecoClienteRepository;
