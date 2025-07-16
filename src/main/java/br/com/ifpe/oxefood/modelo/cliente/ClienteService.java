@@ -2,25 +2,24 @@ package br.com.ifpe.oxefood.modelo.cliente;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import br.com.ifpe.oxefood.modelo.acesso.Perfil;
 import br.com.ifpe.oxefood.modelo.acesso.PerfilRepository;
+import br.com.ifpe.oxefood.modelo.acesso.Usuario;
 import br.com.ifpe.oxefood.modelo.acesso.UsuarioService;
 import br.com.ifpe.oxefood.modelo.mensagens.EmailService;
-import jakarta.transaction.Transactional;
+import br.com.ifpe.oxefood.util.exception.ClienteException;
 
-@Service // Faz a classe ser um serviço
+@Service
 public class ClienteService {
 
-    @Autowired // Instanciar um objeto de forma que eu possar usar os metodos e atributos dessa
-               // classe
+    @Autowired
     private ClienteRepository repository;
 
-    @Autowired // Instanciar um objeto de forma que eu possar usar os metodos e atributos dessa
-               // classe
+    @Autowired
     private EnderecoClienteRepository enderecoClienteRepository;
 
     @Autowired
@@ -32,8 +31,8 @@ public class ClienteService {
     @Autowired
     private EmailService emailService;
 
-    @Transactional // Se um falhar as outras seram desfeitas e não seram gravadas no banco
-    public Cliente save(Cliente cliente) { // Recebe o objeto cliente que ele vai salvar no banco
+    @Transactional
+    public Cliente save(Cliente cliente, Usuario usuarioLogado) {
 
         usuarioService.save(cliente.getUsuario());
 
@@ -42,48 +41,47 @@ public class ClienteService {
             perfilUsuarioRepository.save(perfil);
         }
 
+        if (!cliente.getFoneCelular().startsWith("(81)") || !cliente.getFoneFixo().startsWith("(81)")) {
+            throw new ClienteException(ClienteException.MSG_PREFIXO_CLIENTE);
+        }
         cliente.setHabilitado(Boolean.TRUE);
-        return repository.save(cliente);
-        emailService.enviarEmailConfirmacaoCadastroCliente(clienteSalvo);
-
+        cliente.setCriadoPor(usuarioLogado);
+        Cliente clienteSalvo = repository.save(cliente);
+        // emailService.enviarEmailConfirmacaoCadastroCliente(clienteSalvo);
         return clienteSalvo;
-
-        // Ou voce pode fazer
-        // Cliente c = repository.save(cliente);
-        // return c;
     }
 
     public List<Cliente> listarTodos() {
-
         return repository.findAll();
     }
 
     public Cliente obterPorID(Long id) {
-
         return repository.findById(id).get();
     }
 
     @Transactional
-    public void update(Long id, Cliente clienteAlterado) {
-
-        Cliente cliente = repository.findById(id).get(); // Consultar no banco o cliente
+    public void update(Long id, Cliente clienteAlterado, Usuario usuarioLogado) {
+        Cliente cliente = repository.findById(id).get();
         cliente.setNome(clienteAlterado.getNome());
         cliente.setDataNascimento(clienteAlterado.getDataNascimento());
         cliente.setCpf(clienteAlterado.getCpf());
         cliente.setFoneCelular(clienteAlterado.getFoneCelular());
         cliente.setFoneFixo(clienteAlterado.getFoneFixo());
 
-        repository.save(cliente); // Função para cadastra e alterar objeto
+        cliente.setUltimaModificacaoPor(usuarioLogado);
+
+        repository.save(cliente);
     }
 
-    @Transactional // Toda vez que for mexer no banco utilizar o transactional
+    @Transactional
     public void delete(Long id) {
-
         Cliente cliente = repository.findById(id).get();
         cliente.setHabilitado(Boolean.FALSE);
+        repository.save(cliente);
+    }
 
-        repository.save(cliente); // Na verdade está sendo alterado se realmente fosse deletado em vez de save
-                                  // seria o delete
+    public EnderecoCliente obterEnderecoPorID(Long id) {
+        return enderecoClienteRepository.findById(id).get();
     }
 
     @Transactional
@@ -92,13 +90,11 @@ public class ClienteService {
         Cliente cliente = this.obterPorID(clienteId);
 
         // Primeiro salva o EnderecoCliente:
-
         endereco.setCliente(cliente);
         endereco.setHabilitado(Boolean.TRUE);
         enderecoClienteRepository.save(endereco);
 
         // Depois acrescenta o endereço criado ao cliente e atualiza o cliente:
-
         List<EnderecoCliente> listaEnderecoCliente = cliente.getEnderecos();
 
         if (listaEnderecoCliente == null) {
@@ -137,7 +133,21 @@ public class ClienteService {
         Cliente cliente = this.obterPorID(endereco.getCliente().getId());
         cliente.getEnderecos().remove(endereco);
         repository.save(cliente);
-
     }
 
+    public List<Cliente> filtrar(String nome, String cpf) {
+
+        List<Cliente> listaClienteCpf = repository.findAll();
+        if ((nome != null && !"".equals(nome)) &&
+                (cpf == null || "".equals(cpf))) {
+            listaClienteCpf = repository.consultarPorNome(nome);
+        } else if ((nome == null || "".equals(nome)) &&
+                (cpf != null && !"".equals(cpf))) {
+            listaClienteCpf = repository.consultarPorCpf(cpf);
+        } else if ((nome != null && !"".equals(nome)) &&
+                (cpf != null && !"".equals(cpf))) {
+            listaClienteCpf = repository.findByCpfAndNome(nome, cpf);
+        }
+        return listaClienteCpf;
+    }
 }

@@ -75,4 +75,14 @@ public class Cliente extends EntidadeAuditavel {
     @Column
     private String foneFixo;
 
+    public void setUltimaModificacaoPor(Usuario usuarioLogado) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setUltimaModificacaoPor'");
+    }
+
+    public void setCriadoPor(Usuario usuarioLogado) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setCriadoPor'");
+    }
+
 }

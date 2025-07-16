@@ -24,95 +24,93 @@ import jakarta.mail.internet.MimeMessage;
  */
 @Component
 public class EmailService {
+    @Value("${spring.mail.username}")
+    String username;
 
-   @Value("${spring.mail.username}")
-   String username;
+    @Value("${spring.mail.password}")
+    String password;
 
-   @Value("${spring.mail.password}")
-   String password;
+    @Value("${spring.mail.host}")
+    String host;
 
-   @Value("${spring.mail.host}")
-   String host;
+    @Value("${spring.mail.port}")
+    int port;
 
-   @Value("${spring.mail.port}")
-   int port;
+    @Value("${spring.mail.properties.mail.smtp.auth}")
+    String smtpAuth;
 
-   @Value("${spring.mail.properties.mail.smtp.auth}")
-   String smtpAuth;
+    @Value("${spring.mail.properties.mail.smtp.starttls.enable}")
+    String starttls;
 
-   @Value("${spring.mail.properties.mail.smtp.starttls.enable}")
-   String starttls;
+    private JavaMailSender emailSender;
 
-   private JavaMailSender emailSender;
+    public void enviarEmailConfirmacaoCadastroCliente(Cliente cliente) {
 
-   public void enviarEmailConfirmacaoCadastroCliente(Cliente cliente) {
+        String assuntoEmail = "Bem vindo ao nosso aplicativo";
 
-      String assuntoEmail = "Bem vindo ao nosso aplicativo";
+        Context params = new Context();
+        params.setVariable("cliente", cliente);
 
-      Context params = new Context();
-      params.setVariable("cliente", cliente);
+        this.sendMailTemplate("bem_vindo_cliente.html", cliente.getUsuario().getUsername(), assuntoEmail, params);
+    }
 
-      this.sendMailTemplate("bem_vindo_cliente.html", cliente.getUsuario().getUsername(), assuntoEmail, params);
-   }
+    @Async
+    private void sendMailTemplate(String template, String to, String subject, Context params) {
 
-   @Async
-   private void sendMailTemplate(String template, String to, String subject, Context params) {
+        TemplateEngine templateEngine = new TemplateEngine();
 
-      TemplateEngine templateEngine = new TemplateEngine();
+        ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
+        templateResolver.setPrefix("templates/");
+        templateResolver.setSuffix(".html");
+        templateResolver.setTemplateMode(TemplateMode.HTML);
+        templateResolver.setCharacterEncoding("UTF-8");
+        templateResolver.setOrder(0);
 
-      ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
-      templateResolver.setPrefix("templates/");
-      templateResolver.setSuffix(".html");
-      templateResolver.setTemplateMode(TemplateMode.HTML);
-      templateResolver.setCharacterEncoding("UTF-8");
-      templateResolver.setOrder(0);
+        templateEngine.setTemplateResolver(templateResolver);
 
-      templateEngine.setTemplateResolver(templateResolver);
+        String content = templateEngine.process(template, params);
+        this.sendMail(to, subject, content, Boolean.TRUE);
+    }
 
-      String content = templateEngine.process(template, params);
-      this.sendMail(to, subject, content, Boolean.TRUE);
-   }
+    @Async
+    private void sendMail(String to, String subject, String content, Boolean html) {
 
-   @Async
-   private void sendMail(String to, String subject, String content, Boolean html) {
+        emailSender = getJavaMailSender();
 
-      emailSender = getJavaMailSender();
+        MimeMessage message = emailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message);
 
-      MimeMessage message = emailSender.createMimeMessage();
+        try {
 
-      MimeMessageHelper helper = new MimeMessageHelper(message);
+            helper.setFrom(new InternetAddress("not.reply@delifacil.com.br"));
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(new String(content.getBytes(), StandardCharsets.ISO_8859_1), html);
+            helper.setEncodeFilenames(true);
 
-      try {
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
 
-         helper.setFrom(new InternetAddress("not.reply@delifacil.com.br"));
-         helper.setTo(to);
-         helper.setSubject(subject);
-         helper.setText(new String(content.getBytes(), StandardCharsets.ISO_8859_1), html);
-         helper.setEncodeFilenames(true);
+        emailSender.send(message);
+    }
 
-      } catch (MessagingException e) {
-         e.printStackTrace();
-      }
+    private JavaMailSender getJavaMailSender() {
 
-      emailSender.send(message);
-   }
+        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+        mailSender.setHost(host);
+        mailSender.setPort(port);
 
-   private JavaMailSender getJavaMailSender() {
+        mailSender.setUsername(username);
+        mailSender.setPassword(password);
 
-      JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-      mailSender.setHost(host);
-      mailSender.setPort(port);
+        Properties props = mailSender.getJavaMailProperties();
+        props.put("mail.transport.protocol", "smtp");
+        props.put("mail.smtp.auth", smtpAuth);
+        props.put("mail.smtp.starttls.enable", starttls);
+        props.put("mail.debug", "false");
+        props.put("spring.mail.properties.mail.smtp.starttls.enable", "true");
 
-      mailSender.setUsername(username);
-      mailSender.setPassword(password);
-
-      Properties props = mailSender.getJavaMailProperties();
-      props.put("mail.transport.protocol", "smtp");
-      props.put("mail.smtp.auth", smtpAuth);
-      props.put("mail.smtp.starttls.enable", starttls);
-      props.put("mail.debug", "false");
-      props.put("spring.mail.properties.mail.smtp.starttls.enable", "true");
-
-      return mailSender;
-   }
+        return mailSender;
+    }
 }
